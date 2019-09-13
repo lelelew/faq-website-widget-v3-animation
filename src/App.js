@@ -115,33 +115,29 @@ const topics = [
     content: `Both mattresses share the same quality base and construction. Plush mattresses are designed with an extra-soft topper that conforms to your body's shape for extra comfort.`
   },
   {
-    title: "Sleeping solo?",
-    content: `When you sleep solo there's less worry about motion transimission throughout the night, so choosing a mattress for yourself comes down to your own preferences and you're free to choose whatever style, firm or plush, that best suits you.`
+    title: "How long will a mattress last?",
+    content: `Our warranty will cover the mattress for 10 years so you can sleep soundly knowing you're covered.`
   }
 ];
+
+let timeoutId;
 
 const App = props => {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [chosenTopic, setChosenTopic] = useState(null);
-  const [previewIndex, setPreviewIndex] = useState(null);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (previewIndex === null) {
-        setPreviewIndex(0);
-        return;
-      }
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
       let nextPreviewIndex = previewIndex + 1;
       if (nextPreviewIndex >= topics.length) {
         nextPreviewIndex = 0;
       }
       setPreviewIndex(nextPreviewIndex);
-    }, 8000);
+    }, 10000);
   }, [previewIndex]);
-
-  const previousIndex =
-    previewIndex - 1 >= 0 ? previewIndex - 1 : topics.length - 1;
 
   return (
     <div className={classes.root}>
@@ -162,6 +158,7 @@ const App = props => {
                   onClick={() => {
                     setChosenTopic(null);
                     setIsExpanded(false);
+                    setPreviewIndex(0);
                   }}
                 >
                   <CloseIcon className={classes.closeButtonIcon} />
@@ -204,11 +201,7 @@ const App = props => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <SearchIcon
-                      onClick={() => {
-                        setIsExpanded(!isExpanded);
-                      }}
-                    />
+                    <SearchIcon />
                   </InputAdornment>
                 )
               }}
@@ -218,14 +211,13 @@ const App = props => {
             <div
               className={classes.preview}
               onClick={() => {
-                setIsExpanded(!isExpanded);
-                //change to pass in topic
+                setIsExpanded(true);
                 setChosenTopic(topics[previewIndex]);
               }}
             >
               <div className={classes.collapsedTitle}>
                 {topics.map((topic, index) => {
-                  if (previewIndex === index || previousIndex === index) {
+                  if (previewIndex === index) {
                     const animePropsIn = {
                       opacity: [0, 1],
                       easing: "easeInOutQuad",
