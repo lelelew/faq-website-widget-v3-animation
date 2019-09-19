@@ -14,6 +14,7 @@ import {
 } from "@material-ui/core";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import clsx from "clsx";
 
 const useStyles = makeStyles({
   root: {
@@ -92,7 +93,8 @@ const useStyles = makeStyles({
     backgroundColor: "white",
     width: 320,
     overflowX: "scroll",
-    marginBottom: 55
+    marginBottom: 55,
+    transition: "0.2s"
   },
   widgetNoBorder: {
     border: "none",
@@ -102,6 +104,19 @@ const useStyles = makeStyles({
     width: 320,
     overflowX: "scroll",
     marginBottom: 55
+  },
+  smallWidget: {
+    transform: "scale(0.7)"
+  },
+  bigModeExtension: {
+    marginTop: 4
+  },
+  bigChips: {
+    display: "flex",
+    flexDirection: "row",
+    overflowX: "scroll",
+    width: 300,
+    marginTop: 8
   }
 });
 
@@ -121,146 +136,220 @@ const topics = [
 ];
 
 let timeoutId;
+let numberOfScrolls = 0;
 
 const App = props => {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [chosenTopic, setChosenTopic] = useState(null);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [previewMode, setPreviewMode] = useState("normal");
 
   useEffect(() => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      let nextPreviewIndex = previewIndex + 1;
-      if (nextPreviewIndex >= topics.length) {
-        nextPreviewIndex = 0;
-      }
-      setPreviewIndex(nextPreviewIndex);
-    }, 10000);
-  }, [previewIndex]);
+    if (previewMode !== "big" && !isExpanded) {
+      timeoutId = setTimeout(() => {
+        let nextPreviewIndex = previewIndex + 1;
+        if (nextPreviewIndex >= topics.length) {
+          nextPreviewIndex = 0;
+        }
+        setPreviewIndex(nextPreviewIndex);
+      }, 10000);
+    }
+  }, [previewIndex, previewMode, isExpanded]);
+
+  const scrolly = () => {
+    numberOfScrolls++;
+    if (numberOfScrolls >= 3) {
+      setPreviewMode("small");
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", scrolly);
+    return function cleanup() {
+      window.removeEventListener("scroll", scrolly);
+    };
+  }, []);
+
+  let previewWidgetClassName;
+  if (chosenTopic) {
+    previewWidgetClassName = classes.widgetNoBorder;
+  } else {
+    previewWidgetClassName = clsx(
+      classes.widget,
+      previewMode === "small" && classes.smallWidget
+    );
+  }
 
   return (
-    <div className={classes.root}>
-      {chosenTopic ? (
-        <Slide
-          direction="up"
-          in={chosenTopic !== null}
-          mountOnEnter
-          unmountOnExit
-        >
-          <Card className={classes.card}>
-            <CardContent>
-              <Typography className={classes.title} color="textSecondary">
-                {chosenTopic.title}
-                <IconButton
-                  className={classes.closeButton}
-                  size="small"
+    <div>
+      <button onClick={() => setPreviewMode("big")}>Grab Attention</button>
+      <div className={classes.root}>
+        {chosenTopic ? (
+          <Slide
+            direction="up"
+            in={chosenTopic !== null}
+            mountOnEnter
+            unmountOnExit
+          >
+            <Card className={classes.card}>
+              <CardContent>
+                <Typography className={classes.title} color="textSecondary">
+                  {chosenTopic.title}
+                  <IconButton
+                    className={classes.closeButton}
+                    size="small"
+                    onClick={() => {
+                      setChosenTopic(null);
+                      setIsExpanded(false);
+                      setPreviewIndex(0);
+                    }}
+                  >
+                    <CloseIcon className={classes.closeButtonIcon} />
+                  </IconButton>
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  component="p"
+                  dangerouslySetInnerHTML={{ __html: chosenTopic.content }}
+                ></Typography>
+              </CardContent>
+              <CardActions className={classes.cardActions}>
+                {topics.map((topic, index) => {
+                  return (
+                    <Chip
+                      key={index}
+                      className={classes.chip}
+                      classes={{
+                        label: classes.chipLabel
+                      }}
+                      label={topic.title}
+                      onClick={() => {
+                        setChosenTopic(topic);
+                      }}
+                    />
+                  );
+                })}
+              </CardActions>
+            </Card>
+          </Slide>
+        ) : null}
+        <div className={previewWidgetClassName}>
+          <div className={classes.buttons}>
+            {isExpanded || previewMode === "big" ? (
+              <TextField
+                className={classes.searchInput}
+                placeholder="Type to search.."
+                autoFocus
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <SearchIcon />
+                    </InputAdornment>
+                  )
+                }}
+                size="small"
+              />
+            ) : (
+              <div>
+                <div
+                  className={classes.preview}
                   onClick={() => {
-                    setChosenTopic(null);
-                    setIsExpanded(false);
-                    setPreviewIndex(0);
+                    setIsExpanded(true);
+                    setChosenTopic(topics[previewIndex]);
                   }}
                 >
-                  <CloseIcon className={classes.closeButtonIcon} />
-                </IconButton>
-              </Typography>
-
-              <Typography
-                variant="body2"
-                component="p"
-                dangerouslySetInnerHTML={{ __html: chosenTopic.content }}
-              ></Typography>
-            </CardContent>
-            <CardActions className={classes.cardActions}>
-              {topics.map((topic, index) => {
-                return (
-                  <Chip
-                    key={index}
-                    className={classes.chip}
-                    classes={{
-                      label: classes.chipLabel
-                    }}
-                    label={topic.title}
-                    onClick={() => {
-                      setChosenTopic(topic);
-                    }}
-                  />
-                );
-              })}
-            </CardActions>
-          </Card>
-        </Slide>
-      ) : null}
-      <div className={chosenTopic ? classes.widgetNoBorder : classes.widget}>
-        <div className={classes.buttons}>
-          {isExpanded ? (
-            <TextField
-              className={classes.searchInput}
-              placeholder="type to search.."
-              autoFocus
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchIcon />
-                  </InputAdornment>
-                )
-              }}
-              size="small"
-            />
-          ) : (
-            <div
-              className={classes.preview}
-              onClick={() => {
-                setIsExpanded(true);
-                setChosenTopic(topics[previewIndex]);
-              }}
-            >
-              <div className={classes.collapsedTitle}>
-                {topics.map((topic, index) => {
-                  if (previewIndex === index) {
-                    const animePropsIn = {
-                      opacity: [0, 1],
-                      easing: "easeInOutQuad",
-                      duration: "2250",
-                      delay: (el, i) => 150 * (i + 1)
-                    };
-                    const animePropsOut = {
-                      opacity: [1, 0],
-                      easing: "easeOutExpo",
-                      duration: "1000",
-                      delay: "7000"
-                    };
-                    return (
-                      <Typography
-                        key={index}
-                        className={classes.collapsedTitleText}
-                        component="div"
-                      >
-                        <Anime {...animePropsOut}>
-                          <div>
-                            <Anime {...animePropsIn}>
-                              {topic.title.split("").map((character, index) => {
-                                return (
-                                  <span key={index} className="anime-letter">
-                                    {character}
-                                  </span>
-                                );
-                              })}
+                  <div className={classes.collapsedTitle}>
+                    {topics.map((topic, index) => {
+                      if (previewIndex === index) {
+                        const animePropsIn = {
+                          opacity: [0, 1],
+                          easing: "easeInOutQuad",
+                          duration: "1250",
+                          delay: (el, i) => 50 * (i + 1)
+                        };
+                        const animePropsOut = {
+                          opacity: [1, 0],
+                          easing: "easeOutExpo",
+                          duration: "1000",
+                          delay: "7000"
+                        };
+                        return (
+                          <Typography
+                            key={index}
+                            className={classes.collapsedTitleText}
+                            component="div"
+                          >
+                            {/* Math.random fixes a bug that was occurring on Anime re-rendering*/}
+                            <Anime {...animePropsOut} key={Math.random()}>
+                              <div>
+                                <Anime {...animePropsIn} key={Math.random()}>
+                                  {topic.title
+                                    .split("")
+                                    .map((character, index) => {
+                                      return (
+                                        <span
+                                          key={index}
+                                          className="anime-letter"
+                                        >
+                                          {character}
+                                        </span>
+                                      );
+                                    })}
+                                </Anime>
+                              </div>
                             </Anime>
-                          </div>
-                        </Anime>
-                      </Typography>
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
+                          </Typography>
+                        );
+                      } else {
+                        return null;
+                      }
+                    })}
+                  </div>
+                  <IconButton size="small">
+                    <SearchIcon />
+                  </IconButton>
+                </div>
               </div>
-              <IconButton size="small">
-                <SearchIcon />
-              </IconButton>
+            )}
+          </div>
+          {previewMode === "big" && !isExpanded ? (
+            <div className={classes.bigModeExtension}>
+              <Typography variant="caption" color="textSecondary">
+                People ask:
+              </Typography>
+              <div className={classes.bigChips}>
+                <Anime
+                  key={Math.random()}
+                  translateX={[40, 0]}
+                  translateZ={0}
+                  opacity={[0, 1]}
+                  easing={"easeOutExpo"}
+                  duration={1700}
+                  delay={(el, i) => 500 + 30 * i}
+                >
+                  {topics.map((topic, index) => {
+                    return (
+                      <Chip
+                        key={index}
+                        className={classes.chip}
+                        classes={{
+                          label: classes.chipLabel
+                        }}
+                        label={topic.title}
+                        onClick={() => {
+                          setIsExpanded(true);
+                          setChosenTopic(topic);
+                        }}
+                      />
+                    );
+                  })}
+                </Anime>
+              </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
