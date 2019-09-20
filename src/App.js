@@ -15,24 +15,30 @@ import {
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import clsx from "clsx";
+import debounce from "debounce";
 
 const useStyles = makeStyles({
   root: {
     position: "fixed",
-    bottom: 20,
+    bottom: 4,
     left: "50%",
     marginLeft: -160
   },
   card: {
     position: "fixed",
-    bottom: 20,
+    bottom: 4,
     marginLeft: -12,
     zIndex: -1,
     maxWidth: 344
   },
   cardActions: {
     marginTop: 55,
-    overflowX: "scroll"
+    overflowX: "scroll",
+    "-ms-overflow-style": "none", // IE 10+
+    scrollbarWidth: "none", // Firefox
+    "&::-webkit-scrollbar": {
+      display: "none"
+    }
   },
   closeButton: {
     position: "absolute",
@@ -61,7 +67,12 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    overflowX: "scroll"
+    overflowX: "scroll",
+    "-ms-overflow-style": "none", // IE 10+
+    scrollbarWidth: "none", // Firefox
+    "&::-webkit-scrollbar": {
+      display: "none"
+    }
   },
   chip: {
     marginLeft: 5
@@ -92,9 +103,14 @@ const useStyles = makeStyles({
     borderRadius: 3,
     backgroundColor: "white",
     width: 320,
-    overflowX: "scroll",
     marginBottom: 55,
-    transition: "0.2s"
+    transition: "0.2s",
+    overflowX: "scroll",
+    "-ms-overflow-style": "none", // IE 10+
+    scrollbarWidth: "none", // Firefox
+    "&::-webkit-scrollbar": {
+      display: "none"
+    }
   },
   widgetNoBorder: {
     border: "none",
@@ -103,10 +119,20 @@ const useStyles = makeStyles({
     backgroundColor: "white",
     width: 320,
     overflowX: "scroll",
+    "-ms-overflow-style": "none", // IE 10+
+    scrollbarWidth: "none", // Firefox
+    "&::-webkit-scrollbar": {
+      display: "none"
+    },
     marginBottom: 55
   },
   smallWidget: {
-    transform: "scale(0.7)"
+    transform: "scale(0.7)",
+    marginBottom: 0,
+    opacity: 0.8,
+    "&:hover": {
+      opacity: 1
+    }
   },
   bigModeExtension: {
     marginTop: 4
@@ -115,6 +141,11 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "row",
     overflowX: "scroll",
+    "-ms-overflow-style": "none", // IE 10+
+    scrollbarWidth: "none", // Firefox
+    "&::-webkit-scrollbar": {
+      display: "none"
+    },
     width: 300,
     marginTop: 8
   }
@@ -151,19 +182,29 @@ const App = props => {
       timeoutId = setTimeout(() => {
         let nextPreviewIndex = previewIndex + 1;
         if (nextPreviewIndex >= topics.length) {
-          nextPreviewIndex = 0;
+          // don't loop
+          // nextPreviewIndex = 0;
+          return;
         }
         setPreviewIndex(nextPreviewIndex);
       }, 10000);
     }
   }, [previewIndex, previewMode, isExpanded]);
 
-  const scrolly = () => {
-    numberOfScrolls++;
-    if (numberOfScrolls >= 3) {
-      setPreviewMode("small");
-    }
-  };
+  const scrolly = debounce(
+    () => {
+      numberOfScrolls++;
+      if (numberOfScrolls >= 1) {
+        setPreviewMode("small");
+      }
+      if (numberOfScrolls >= 8) {
+        numberOfScrolls = 0;
+        setPreviewMode("big");
+      }
+    },
+    200,
+    true
+  );
 
   useEffect(() => {
     window.addEventListener("scroll", scrolly);
@@ -184,7 +225,7 @@ const App = props => {
 
   return (
     <div>
-      <button onClick={() => setPreviewMode("big")}>Grab Attention</button>
+      {/* <button onClick={() => setPreviewMode("big")}>Grab Attention</button> */}
       <div className={classes.root}>
         {chosenTopic ? (
           <Slide
@@ -203,6 +244,7 @@ const App = props => {
                     onClick={() => {
                       setChosenTopic(null);
                       setIsExpanded(false);
+                      setPreviewMode("normal");
                       setPreviewIndex(0);
                     }}
                   >
@@ -241,7 +283,7 @@ const App = props => {
             {isExpanded || previewMode === "big" ? (
               <TextField
                 className={classes.searchInput}
-                placeholder="Type to search.."
+                placeholder="Ask questions here..."
                 autoFocus
                 InputProps={{
                   endAdornment: (
@@ -267,8 +309,8 @@ const App = props => {
                         const animePropsIn = {
                           opacity: [0, 1],
                           easing: "easeInOutQuad",
-                          duration: "1250",
-                          delay: (el, i) => 50 * (i + 1)
+                          duration: "750",
+                          delay: (el, i) => 20 * (i + 1)
                         };
                         const animePropsOut = {
                           opacity: [1, 0],
