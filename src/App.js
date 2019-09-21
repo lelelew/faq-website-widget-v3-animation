@@ -29,16 +29,8 @@ const useStyles = makeStyles({
     bottom: 4,
     marginLeft: -12,
     zIndex: -1,
-    maxWidth: 344
-  },
-  cardActions: {
-    marginTop: 55,
-    overflowX: "scroll",
-    "-ms-overflow-style": "none", // IE 10+
-    scrollbarWidth: "none", // Firefox
-    "&::-webkit-scrollbar": {
-      display: "none"
-    }
+    maxWidth: 344,
+    paddingBottom: 100
   },
   closeButton: {
     position: "absolute",
@@ -48,6 +40,13 @@ const useStyles = makeStyles({
   closeButtonIcon: {
     width: 14,
     height: 14
+  },
+  closeButtonWhileBig: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    height: 14,
+    width: 14
   },
   collapsedTitle: {
     width: 270,
@@ -71,8 +70,10 @@ const useStyles = makeStyles({
     "-ms-overflow-style": "none", // IE 10+
     scrollbarWidth: "none", // Firefox
     "&::-webkit-scrollbar": {
+      // Safari & Chrome
       display: "none"
-    }
+    },
+    position: "relative"
   },
   chip: {
     marginLeft: 5
@@ -103,7 +104,7 @@ const useStyles = makeStyles({
     borderRadius: 3,
     backgroundColor: "white",
     width: 320,
-    marginBottom: 55,
+    marginBottom: 2,
     transition: "0.2s",
     overflowX: "scroll",
     "-ms-overflow-style": "none", // IE 10+
@@ -124,7 +125,7 @@ const useStyles = makeStyles({
     "&::-webkit-scrollbar": {
       display: "none"
     },
-    marginBottom: 55
+    marginBottom: 2
   },
   smallWidget: {
     transform: "scale(0.7)",
@@ -158,7 +159,7 @@ const topics = [
   },
   {
     title: "Plush and firm - what's the difference?",
-    content: `Both mattresses share the same quality base and construction. Plush mattresses are designed with an extra-soft topper that conforms to your body's shape for extra comfort.`
+    content: `Both mattresses share the same quality base and construction. Plush mattresses are designed with an extra-soft topper that conforms to your body's shape for extra comfort. Firm mattresses use the same great base, but the big difference between a firm on soft mattress is the feel. A firm mattress is more rigid to the touch and has less give. A softer mattress will compress more easily when pressure is applied.`
   },
   {
     title: "How long will a mattress last?",
@@ -258,33 +259,32 @@ const App = props => {
                   dangerouslySetInnerHTML={{ __html: chosenTopic.content }}
                 ></Typography>
               </CardContent>
-              <CardActions className={classes.cardActions}>
-                {topics.map((topic, index) => {
-                  return (
-                    <Chip
-                      key={index}
-                      className={classes.chip}
-                      classes={{
-                        label: classes.chipLabel
-                      }}
-                      label={topic.title}
-                      onClick={() => {
-                        setChosenTopic(topic);
-                      }}
-                    />
-                  );
-                })}
-              </CardActions>
             </Card>
           </Slide>
         ) : null}
         <div className={previewWidgetClassName}>
+          {!isExpanded && previewMode === "big" ? (
+            <IconButton
+              className={classes.closeButtonWhileBig}
+              size="small"
+              onClick={() => {
+                setChosenTopic(null);
+                setIsExpanded(false);
+                setPreviewMode("normal");
+                setPreviewIndex(0);
+              }}
+            >
+              <CloseIcon className={classes.closeButtonWhileBig} />
+            </IconButton>
+          ) : null}
+
           <div className={classes.buttons}>
             {isExpanded || previewMode === "big" ? (
               <TextField
                 className={classes.searchInput}
                 placeholder="Ask questions here..."
-                autoFocus
+                // autoFocus
+                // removed due to keyboard taking up too much space on mobile
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
@@ -357,13 +357,15 @@ const App = props => {
               </div>
             )}
           </div>
-          {previewMode === "big" && !isExpanded ? (
+
+          {/* When the widget is auto expanded */}
+          {previewMode === "big" || isExpanded ? (
             <div className={classes.bigModeExtension}>
               <Typography variant="caption" color="textSecondary">
                 People ask:
               </Typography>
               <div className={classes.bigChips}>
-                <Anime
+                {/* <Anime
                   key={Math.random()}
                   translateX={[40, 0]}
                   translateZ={0}
@@ -371,24 +373,39 @@ const App = props => {
                   easing={"easeOutExpo"}
                   duration={1700}
                   delay={(el, i) => 500 + 30 * i}
-                >
-                  {topics.map((topic, index) => {
-                    return (
-                      <Chip
-                        key={index}
-                        className={classes.chip}
-                        classes={{
-                          label: classes.chipLabel
-                        }}
-                        label={topic.title}
-                        onClick={() => {
-                          setIsExpanded(true);
-                          setChosenTopic(topic);
-                        }}
-                      />
-                    );
-                  })}
-                </Anime>
+                > */}
+                {topics.map((topic, index) => {
+                  return (
+                    <Chip
+                      id={`chip-${index}`}
+                      key={index}
+                      className={classes.chip}
+                      classes={{
+                        label: classes.chipLabel
+                      }}
+                      label={topic.title}
+                      variant={
+                        chosenTopic && chosenTopic.title === topic.title
+                          ? "outlined"
+                          : "default"
+                      }
+                      onClick={() => {
+                        // using refs is too hard b/c of react-anime
+                        // messing with the refs
+                        document
+                          .getElementById(`chip-${index}`)
+                          .scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                            inline: "center"
+                          });
+                        setIsExpanded(true);
+                        setChosenTopic(topic);
+                      }}
+                    />
+                  );
+                })}
+                {/* </Anime> */}
               </div>
             </div>
           ) : null}
