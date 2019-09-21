@@ -177,6 +177,14 @@ const App = props => {
   const [previewIndex, setPreviewIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState("normal");
 
+  const reset = () => {
+    setChosenTopic(null);
+    setIsExpanded(false);
+    setPreviewMode("normal");
+    setPreviewIndex(0);
+    numberOfScrolls = 0;
+  };
+
   useEffect(() => {
     clearTimeout(timeoutId);
     if (previewMode !== "big" && !isExpanded) {
@@ -195,7 +203,7 @@ const App = props => {
   const scrolly = debounce(
     () => {
       numberOfScrolls++;
-      if (numberOfScrolls >= 1) {
+      if (numberOfScrolls === 1) {
         setPreviewMode("small");
       }
       // instead of resetting so we
@@ -247,12 +255,7 @@ const App = props => {
                   <IconButton
                     className={classes.closeButton}
                     size="small"
-                    onClick={() => {
-                      setChosenTopic(null);
-                      setIsExpanded(false);
-                      setPreviewMode("normal");
-                      setPreviewIndex(0);
-                    }}
+                    onClick={reset}
                   >
                     <CloseIcon className={classes.closeButtonIcon} />
                   </IconButton>
@@ -272,12 +275,7 @@ const App = props => {
             <IconButton
               className={classes.closeButtonWhileBig}
               size="small"
-              onClick={() => {
-                setChosenTopic(null);
-                setIsExpanded(false);
-                setPreviewMode("normal");
-                setPreviewIndex(0);
-              }}
+              onClick={reset}
             >
               <CloseIcon className={classes.closeButtonWhileBig} />
             </IconButton>
