@@ -198,8 +198,13 @@ const App = props => {
       if (numberOfScrolls >= 1) {
         setPreviewMode("small");
       }
-      if (numberOfScrolls >= 8) {
-        numberOfScrolls = 0;
+      // instead of resetting so we
+      // collapse on scroll, make the
+      // visitor close biggie mode
+      // and then do not biggie again
+      // on the same page
+      if (numberOfScrolls === 8) {
+        // numberOfScrolls = 0;
         setPreviewMode("big");
       }
     },
