@@ -164,6 +164,18 @@ const topics = [
   {
     title: "How long will a mattress last?",
     content: `Our warranty will cover the mattress for 10 years so you can sleep soundly knowing you're covered.`
+  },
+  {
+    title: "What mattress foundation should I use?",
+    content: `The Snüz Mattress needs a strong and sturdy base! This can be a platform, box foundation, or an adjustable bed frame — it all works just fine. Keep in mind all slats should be 3" or less apart for the best support.`
+  },
+  {
+    title: "What kind of mattress protector do I need?",
+    content: `We recommend a mattress protector that has plenty of stretch allowing you to sink in properly and gain the full benefits of technology our mattresses have to offer.`
+  },
+  {
+    title: "How long will it take for my order to arrive?",
+    content: `For standard shipping, delivery times will vary. You can usually expect delivery of your ordered items within 3-7 business days by FedEx Ground, with delivery Monday through Friday, excluding holidays.`
   }
 ];
 
