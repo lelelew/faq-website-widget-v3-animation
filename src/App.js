@@ -31,7 +31,7 @@ const useStyles = makeStyles({
     marginLeft: -12,
     zIndex: -1,
     maxWidth: 344,
-    paddingBottom: 100
+    paddingBottom: 108
   },
   closeButton: {
     position: "absolute",
