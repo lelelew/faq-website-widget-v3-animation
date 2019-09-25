@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Anime from "react-anime";
 import Chip from "@material-ui/core/Chip";
 import CloseIcon from "@material-ui/icons/Close";
+import NavigateBeforeIcon from "@material-ui/icons/NavigateBefore";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import SearchIcon from "@material-ui/icons/Search";
 import Slide from "@material-ui/core/Slide";
 import { makeStyles } from "@material-ui/core/styles";
@@ -9,8 +11,7 @@ import {
   IconButton,
   TextField,
   InputAdornment,
-  Typography,
-  CardActions
+  Typography
 } from "@material-ui/core";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -142,13 +143,21 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "row",
     overflowX: "scroll",
-    "-ms-overflow-style": "none", // IE 10+
-    scrollbarWidth: "none", // Firefox
+    paddingBottom: 4,
+    "-ms-overflow-style": "-ms-autohiding-scrollbar", // IE 10+
+    // scrollbarWidth: "none", // Firefox
+    scrollbarWidth: "thin", // Firefox
+    scrollbarColor: "auto", //Firefox
     "&::-webkit-scrollbar": {
-      display: "none"
+      height: 1
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "blue"
     },
     width: 300,
     marginTop: 8
+    // "-webkit-overflow-scrolling": "touch",
+    // webkitOverflowScrolling: "touch"
   }
 });
 
@@ -181,6 +190,7 @@ const topics = [
 
 let timeoutId;
 let numberOfScrolls = 0;
+let horizontalScrollPosition;
 
 const App = props => {
   const classes = useStyles();
@@ -188,6 +198,8 @@ const App = props => {
   const [chosenTopic, setChosenTopic] = useState(null);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState("normal");
+  // store window X offset to determine whether < > nav icons should be visible
+  // const [horizontalScrollPosition, setHorizontalScrollPosition] = useState(0);
 
   const reset = () => {
     setChosenTopic(null);
@@ -389,6 +401,19 @@ const App = props => {
                   duration={1700}
                   delay={(el, i) => 500 + 30 * i}
                 > */}
+
+                {/* <IconButton
+                  // className={classes.closeButton}
+                  size="small"
+                  // onClick={reset}
+                >
+                  <NavigateBeforeIcon
+                  // className={classes.closeButtonIcon}
+                  />
+                </IconButton> */}
+
+                {/* {console.log(`horizontal scroll is: ${window.pageXOffset}`)} */}
+
                 {topics.map((topic, index) => {
                   return (
                     <Chip
@@ -401,8 +426,8 @@ const App = props => {
                       label={topic.title}
                       variant={
                         chosenTopic && chosenTopic.title === topic.title
-                          ? "outlined"
-                          : "default"
+                          ? "default"
+                          : "outlined"
                       }
                       onClick={() => {
                         // using refs is too hard b/c of react-anime
@@ -419,6 +444,8 @@ const App = props => {
                       }}
                     />
                   );
+
+                  //add navigation icons here?
                 })}
                 {/* </Anime> */}
               </div>
