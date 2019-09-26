@@ -8,6 +8,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import Slide from "@material-ui/core/Slide";
 import { makeStyles } from "@material-ui/core/styles";
 import {
+  Icon,
   IconButton,
   TextField,
   InputAdornment,
@@ -86,6 +87,16 @@ const useStyles = makeStyles({
     textOverflow: "ellipsis",
     display: "inline-block"
   },
+  navigateNextIcon: {
+    position: "absolute",
+    right: -12,
+    bottom: 20
+  },
+  navigateBeforeIcon: {
+    position: "absolute",
+    left: -12,
+    bottom: 20
+  },
   preview: {
     alignItems: "center",
     display: "flex",
@@ -144,15 +155,11 @@ const useStyles = makeStyles({
     flexDirection: "row",
     overflowX: "scroll",
     paddingBottom: 4,
-    "-ms-overflow-style": "-ms-autohiding-scrollbar", // IE 10+
-    // scrollbarWidth: "none", // Firefox
-    scrollbarWidth: "thin", // Firefox
-    scrollbarColor: "auto", //Firefox
+    // code for no scrollbar on all browsers
+    "-ms-overflow-style": "none", // IE 10+
+    scrollbarWidth: "none", // Firefox
     "&::-webkit-scrollbar": {
-      height: 1
-    },
-    "&::-webkit-scrollbar-thumb": {
-      background: "blue"
+      display: "none"
     },
     width: 300,
     marginTop: 8
@@ -190,7 +197,7 @@ const topics = [
 
 let timeoutId;
 let numberOfScrolls = 0;
-let horizontalScrollPosition;
+let scrollIndex = 0;
 
 const App = props => {
   const classes = useStyles();
@@ -198,8 +205,6 @@ const App = props => {
   const [chosenTopic, setChosenTopic] = useState(null);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState("normal");
-  // store window X offset to determine whether < > nav icons should be visible
-  // const [horizontalScrollPosition, setHorizontalScrollPosition] = useState(0);
 
   const reset = () => {
     setChosenTopic(null);
@@ -207,6 +212,7 @@ const App = props => {
     setPreviewMode("normal");
     setPreviewIndex(0);
     numberOfScrolls = 0;
+    scrollIndex = 0;
   };
 
   useEffect(() => {
@@ -313,8 +319,8 @@ const App = props => {
                 // autoFocus
                 // removed due to keyboard taking up too much space on mobile
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
+                  startAdornment: (
+                    <InputAdornment position="start">
                       <SearchIcon />
                     </InputAdornment>
                   )
@@ -328,6 +334,7 @@ const App = props => {
                   onClick={() => {
                     setIsExpanded(true);
                     setChosenTopic(topics[previewIndex]);
+                    scrollIndex = previewIndex;
                   }}
                 >
                   <div className={classes.collapsedTitle}>
@@ -402,18 +409,25 @@ const App = props => {
                   delay={(el, i) => 500 + 30 * i}
                 > */}
 
-                {/* <IconButton
-                  // className={classes.closeButton}
+                <IconButton
+                  className={classes.navigateBeforeIcon}
                   size="small"
-                  // onClick={reset}
+                  color="disabled"
+                  onClick={() => {
+                    if (scrollIndex > 0) {
+                      scrollIndex--;
+                      document
+                        .getElementById(`chip-${scrollIndex}`)
+                        .scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                          inline: "center"
+                        });
+                    }
+                  }}
                 >
-                  <NavigateBeforeIcon
-                  // className={classes.closeButtonIcon}
-                  />
-                </IconButton> */}
-
-                {/* {console.log(`horizontal scroll is: ${window.pageXOffset}`)} */}
-
+                  <NavigateBeforeIcon />
+                </IconButton>
                 {topics.map((topic, index) => {
                   return (
                     <Chip
@@ -441,12 +455,32 @@ const App = props => {
                           });
                         setIsExpanded(true);
                         setChosenTopic(topic);
+                        scrollIndex = index;
                       }}
                     />
                   );
-
-                  //add navigation icons here?
                 })}
+
+                <IconButton
+                  className={classes.navigateNextIcon}
+                  size="small"
+                  color="disabled"
+                  onClick={() => {
+                    if (scrollIndex < topics.length - 1) {
+                      scrollIndex++;
+                      document
+                        .getElementById(`chip-${scrollIndex}`)
+                        .scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                          inline: "center"
+                        });
+                    }
+                  }}
+                >
+                  <NavigateNextIcon />
+                </IconButton>
+
                 {/* </Anime> */}
               </div>
             </div>
