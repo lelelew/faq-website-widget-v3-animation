@@ -170,12 +170,12 @@ const useStyles = makeStyles({
 
 const topics = [
   {
-    title: "What's the risk free trial?",
-    content: `We believe you should sleep on these products to decide if you like them, so we give you up to 100 nights to try them in your own home. If they don’t work out, returns are free and easy.`
-  },
-  {
     title: "Plush and firm - what's the difference?",
     content: `Both mattresses share the same quality base and construction. Plush mattresses are designed with an extra-soft topper that conforms to your body's shape for extra comfort. Firm mattresses use the same great base, but the big difference between a firm on soft mattress is the feel. A firm mattress is more rigid to the touch and has less give. A softer mattress will compress more easily when pressure is applied.`
+  },
+  {
+    title: "What's the risk free trial?",
+    content: `We believe you should sleep on these products to decide if you like them, so we give you up to 100 nights to try them in your own home. If they don’t work out, returns are free and easy.`
   },
   {
     title: "How long will a mattress last?",
@@ -204,7 +204,7 @@ const App = props => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [chosenTopic, setChosenTopic] = useState(null);
   const [previewIndex, setPreviewIndex] = useState(0);
-  const [previewMode, setPreviewMode] = useState("normal");
+  const [previewMode, setPreviewMode] = useState("big");
 
   const reset = () => {
     setChosenTopic(null);
@@ -234,7 +234,7 @@ const App = props => {
     () => {
       numberOfScrolls++;
       if (numberOfScrolls === 1) {
-        setPreviewMode("small");
+        setPreviewMode("big");
       }
       // instead of resetting so we
       // collapse on scroll, make the
@@ -249,6 +249,14 @@ const App = props => {
     200,
     true
   );
+
+  function scrollIntoView(index) {
+    document.getElementById(`chip-${index}`).scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+      inline: "center"
+    });
+  }
 
   useEffect(() => {
     window.addEventListener("scroll", scrolly);
@@ -267,6 +275,13 @@ const App = props => {
     );
   }
 
+  useEffect(() => {
+    setTimeout(() => {
+      setChosenTopic(topics[1]);
+      scrollIntoView(1);
+    }, 5000);
+  });
+
   return (
     <div>
       {/* <button onClick={() => setPreviewMode("big")}>Grab Attention</button> */}
@@ -282,13 +297,13 @@ const App = props => {
               <CardContent>
                 <Typography className={classes.title} color="textSecondary">
                   {chosenTopic.title}
-                  <IconButton
+                  {/* <IconButton
                     className={classes.closeButton}
                     size="small"
                     onClick={reset}
                   >
                     <CloseIcon className={classes.closeButtonIcon} />
-                  </IconButton>
+                  </IconButton> */}
                 </Typography>
 
                 <Typography
@@ -301,33 +316,33 @@ const App = props => {
           </Slide>
         ) : null}
         <div className={previewWidgetClassName}>
-          {!isExpanded && previewMode === "big" ? (
-            <IconButton
-              className={classes.closeButtonWhileBig}
-              size="small"
-              onClick={reset}
-            >
-              <CloseIcon className={classes.closeButtonWhileBig} />
-            </IconButton>
-          ) : null}
+          {!isExpanded && previewMode === "big"
+            ? // <IconButton
+              //   className={classes.closeButtonWhileBig}
+              //   size="small"
+              //   onClick={reset}
+              // >
+              //   <CloseIcon className={classes.closeButtonWhileBig} />
+              // </IconButton>
+              null
+            : null}
 
           <div className={classes.buttons}>
-            {isExpanded || previewMode === "big" ? (
-              <TextField
-                className={classes.searchInput}
-                placeholder="Ask questions here..."
-                // autoFocus
-                // removed due to keyboard taking up too much space on mobile
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  )
-                }}
-                size="small"
-              />
-            ) : (
+            {isExpanded || previewMode === "big" ? null : (
+              // <TextField
+              //   className={classes.searchInput}
+              //   placeholder="Ask questions here..."
+              //   // autoFocus
+              //   // removed due to keyboard taking up too much space on mobile
+              //   InputProps={{
+              //     startAdornment: (
+              //       <InputAdornment position="start">
+              //         <SearchIcon />
+              //       </InputAdornment>
+              //     )
+              //   }}
+              //   size="small"
+              // />
               <div>
                 <div
                   className={classes.preview}
@@ -338,7 +353,7 @@ const App = props => {
                   }}
                 >
                   <div className={classes.collapsedTitle}>
-                    {topics.map((topic, index) => {
+                    {/* {topics.map((topic, index) => {
                       if (previewIndex === index) {
                         const animePropsIn = {
                           opacity: [0, 1],
@@ -351,38 +366,7 @@ const App = props => {
                           easing: "easeOutExpo",
                           duration: "1000",
                           delay: "7000"
-                        };
-                        return (
-                          <Typography
-                            key={index}
-                            className={classes.collapsedTitleText}
-                            component="div"
-                          >
-                            {/* Math.random fixes a bug that was occurring on Anime re-rendering*/}
-                            <Anime {...animePropsOut} key={Math.random()}>
-                              <div>
-                                <Anime {...animePropsIn} key={Math.random()}>
-                                  {topic.title
-                                    .split("")
-                                    .map((character, index) => {
-                                      return (
-                                        <span
-                                          key={index}
-                                          className="anime-letter"
-                                        >
-                                          {character}
-                                        </span>
-                                      );
-                                    })}
-                                </Anime>
-                              </div>
-                            </Anime>
-                          </Typography>
-                        );
-                      } else {
-                        return null;
-                      }
-                    })}
+                        }; */}
                   </div>
                   <IconButton size="small">
                     <SearchIcon />
@@ -395,9 +379,9 @@ const App = props => {
           {/* When the widget is auto expanded */}
           {previewMode === "big" || isExpanded ? (
             <div className={classes.bigModeExtension}>
-              <Typography variant="caption" color="textSecondary">
+              {/* <Typography variant="caption" color="textSecondary">
                 People ask:
-              </Typography>
+              </Typography> */}
               <div className={classes.bigChips}>
                 {/* <Anime
                   key={Math.random()}
@@ -416,13 +400,7 @@ const App = props => {
                   onClick={() => {
                     if (scrollIndex > 0) {
                       scrollIndex--;
-                      document
-                        .getElementById(`chip-${scrollIndex}`)
-                        .scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                          inline: "center"
-                        });
+                      scrollIntoView(scrollIndex);
                     }
                   }}
                 >
